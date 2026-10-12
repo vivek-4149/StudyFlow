@@ -1,13 +1,47 @@
 import { useEffect, useState } from 'react'
 
+function getGreeting() {
+  const hour = new Date().getHours()
+
+  if (hour >= 5 && hour < 12) return 'Good Morning'
+  if (hour >= 12 && hour < 17) return 'Good Afternoon'
+  if (hour >= 17 && hour < 21) return 'Good Evening'
+
+  return 'Good Night'
+}
 import StatCard from '../components/StatCard'
 import TaskList from '../components/TaskList'
 import SubjectProgress from '../components/SubjectProgress'
 import RecentNotes from '../components/RecentNotes'
-
 import { getStoredData } from '../utils/localStorage'
 
 function Dashboard() {
+  const [greeting, setGreeting] = useState(getGreeting)
+  const [todayDate, setTodayDate] = useState(() =>
+    new Date().toLocaleDateString('en-IN', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }),
+  )
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGreeting(getGreeting())
+      setTodayDate(
+        new Date().toLocaleDateString('en-IN', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }),
+      )
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   const [tasks, setTasks] = useState(() =>
     getStoredData('studyflow-tasks', []),
   )
@@ -87,8 +121,9 @@ function Dashboard() {
     <section className="dashboard">
       <div className="dashboard-header">
         <div>
-          <h1>Good Morning, Student 👋</h1>
+          <h1>{greeting}, Student 👋</h1>
           <p>Here's your study overview for today.</p>
+          <p className="dashboard-date">{todayDate}</p>
         </div>
       </div>
 
