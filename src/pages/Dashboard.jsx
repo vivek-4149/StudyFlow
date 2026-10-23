@@ -1,4 +1,10 @@
+
 import { useEffect, useState } from 'react'
+import StatCard from '../components/StatCard'
+import TaskList from '../components/TaskList'
+import SubjectProgress from '../components/SubjectProgress'
+import RecentNotes from '../components/RecentNotes'
+import { getStoredData } from '../utils/localStorage'
 
 function getGreeting() {
   const hour = new Date().getHours()
@@ -9,38 +15,19 @@ function getGreeting() {
 
   return 'Good Night'
 }
-import StatCard from '../components/StatCard'
-import TaskList from '../components/TaskList'
-import SubjectProgress from '../components/SubjectProgress'
-import RecentNotes from '../components/RecentNotes'
-import { getStoredData } from '../utils/localStorage'
 
-function Dashboard() {
+function formatDate() {
+  return new Date().toLocaleDateString('en-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+function Dashboard({ userName = 'Student' }) {
   const [greeting, setGreeting] = useState(getGreeting)
-  const [todayDate, setTodayDate] = useState(() =>
-    new Date().toLocaleDateString('en-IN', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    }),
-  )
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setGreeting(getGreeting())
-      setTodayDate(
-        new Date().toLocaleDateString('en-IN', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }),
-      )
-    }, 60000)
-
-    return () => clearInterval(interval)
-  }, [])
+  const [todayDate, setTodayDate] = useState(formatDate)
 
   const [tasks, setTasks] = useState(() =>
     getStoredData('studyflow-tasks', []),
@@ -50,17 +37,24 @@ function Dashboard() {
     getStoredData('studyflow-sessions', []),
   )
 
+  // Update greeting and date
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGreeting(getGreeting())
+      setTodayDate(formatDate())
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Keep task and study-session statistics updated
   useEffect(() => {
     function updateTasks() {
-      setTasks(
-        getStoredData('studyflow-tasks', []),
-      )
+      setTasks(getStoredData('studyflow-tasks', []))
     }
 
     function updateSessions() {
-      setSessions(
-        getStoredData('studyflow-sessions', []),
-      )
+      setSessions(getStoredData('studyflow-sessions', []))
     }
 
     window.addEventListener(
@@ -99,18 +93,12 @@ function Dashboard() {
     : 0
 
   const totalStudyMinutes = sessions.reduce(
-    (total, session) =>
-      total + session.duration / 60,
+    (total, session) => total + session.duration / 60,
     0,
   )
 
-  const studyHours = Math.floor(
-    totalStudyMinutes / 60,
-  )
-
-  const studyMinutes = Math.round(
-    totalStudyMinutes % 60,
-  )
+  const studyHours = Math.floor(totalStudyMinutes / 60)
+  const studyMinutes = Math.round(totalStudyMinutes % 60)
 
   const studyTime =
     studyHours > 0
@@ -121,9 +109,15 @@ function Dashboard() {
     <section className="dashboard">
       <div className="dashboard-header">
         <div>
-          <h1>{greeting}, Student 👋</h1>
+          <h1>
+            {greeting}, {userName} 👋
+          </h1>
+
           <p>Here's your study overview for today.</p>
-          <p className="dashboard-date">{todayDate}</p>
+
+          <p className="dashboard-date">
+            {todayDate}
+          </p>
         </div>
       </div>
 

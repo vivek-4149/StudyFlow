@@ -1,9 +1,7 @@
-function Navbar({ theme, onToggleTheme }) {
+function Navbar({ theme, onToggleTheme, userName = 'Student', onLogout }) {
   return (
     <nav className="navbar">
-      <div className="navbar-logo">
-        StudyFlow
-      </div>
+      <div className="navbar-logo">StudyFlow</div>
 
       <div className="navbar-actions">
         <button
@@ -15,9 +13,13 @@ function Navbar({ theme, onToggleTheme }) {
           {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
         </button>
 
-        <div className="navbar-user">
-          Student
-        </div>
+        <span className="navbar-user" title={userName}>
+          {userName}
+        </span>
+
+        <button type="button" className="logout-button" onClick={onLogout}>
+          Log Out
+        </button>
       </div>
     </nav>
   )
